@@ -16,10 +16,19 @@ public class CustomerService {
     @Autowired
     CustomerRepository customerRepository;
 
+    /**
+     * Get Customers
+     * @return List<Customer>
+     */
     public List<Customer> getCustomers(){
         return customerRepository.findAll();
     }
 
+    /**
+     * Get customer by Id
+     * @param id
+     * @return Customer
+     */
     public Customer getCustomer(Integer id){
         Optional<Customer> optionalCustomer = customerRepository.findById(id);
         return optionalCustomer.orElse(null);
@@ -41,5 +50,42 @@ public class CustomerService {
         customer.setAddress(customerDto.getAddress());
         customerRepository.save(customer);
         return new ApiResponse("Customer added", true);
+    }
+
+    /**
+     * Edit Customer
+     * @param customerDto
+     * @param id, customerDto
+     * @return ApiResponse
+     */
+    public ApiResponse editCustomer(CustomerDto customerDto, Integer id){
+        boolean existsByPhoneNumberAndIdNot = customerRepository.existsByPhoneNumberAndIdNot(customerDto.getPhoneNumber(), id);
+        if (existsByPhoneNumberAndIdNot)
+            return new ApiResponse("Phone number already exist", false);
+
+        Optional<Customer> optionalCustomer = customerRepository.findById(id);
+        if (optionalCustomer.isEmpty())
+            return new ApiResponse("Customer not found", false);
+
+        Customer customer = optionalCustomer.get();
+        customer.setAddress(customerDto.getAddress());
+        customer.setFullName(customerDto.getFullName());
+        customer.setPhoneNumber(customerDto.getPhoneNumber());
+        customerRepository.save(customer);
+
+        return new ApiResponse("Customer edited", true);
+    }
+
+    /**
+     * Delete Customer
+     * @param id
+     * @return ApiResponse
+     */
+    public ApiResponse deleteCustomer(Integer id){
+        Optional<Customer> optionalCustomer = customerRepository.findById(id);
+        if (optionalCustomer.isEmpty())
+            return new ApiResponse("Customer not found", false);
+        customerRepository.deleteById(id);
+        return new ApiResponse("Customer deleted", true);
     }
 }
