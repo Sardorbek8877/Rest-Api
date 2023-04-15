@@ -1,13 +1,19 @@
 package uz.bek.appapi.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import uz.bek.appapi.entity.Customer;
 import uz.bek.appapi.payload.ApiResponse;
 import uz.bek.appapi.payload.CustomerDto;
 import uz.bek.appapi.service.CustomerService;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/customers")
@@ -42,7 +48,7 @@ public class CustomerController {
      * CREATE VALIDATION
      */
     @PostMapping
-    public ApiResponse addCustomer(@RequestBody CustomerDto customerDto){
+    public ApiResponse addCustomer(@Valid @RequestBody CustomerDto customerDto){
         ApiResponse apiResponse = customerService.addCustomer(customerDto);
         return apiResponse;
     }
@@ -54,7 +60,7 @@ public class CustomerController {
      * @return ApiResponse
      */
     @PutMapping("/{id}")
-    public ApiResponse editCustomer(@RequestBody CustomerDto customerDto, @PathVariable Integer id){
+    public ApiResponse editCustomer(@Valid @RequestBody CustomerDto customerDto, @PathVariable Integer id){
         return customerService.editCustomer(customerDto, id);
     }
 
@@ -66,5 +72,18 @@ public class CustomerController {
     @DeleteMapping("/{id}")
     public ApiResponse deleteCustomer(@PathVariable Integer id){
         return customerService.deleteCustomer(id);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleValidationExceptions(
+            MethodArgumentNotValidException ex){
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return errors;
     }
 }

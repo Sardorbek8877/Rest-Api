@@ -10,12 +10,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CustomerDto {
 
-    @NotNull
+    @NotNull(message = "Fullname does not to be empty ")
     private String fullName;
 
-    @NotNull
+    @NotNull(message = "Phone number does not to be empty ")
     private String phoneNumber;
 
-    @NotNull
+    @NotNull(message = "Address does not to be empty ")
     private String address;
 }
