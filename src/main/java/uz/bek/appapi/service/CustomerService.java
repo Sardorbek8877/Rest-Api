@@ -82,10 +82,11 @@ public class CustomerService {
      * @return ApiResponse
      */
     public ApiResponse deleteCustomer(Integer id){
-        Optional<Customer> optionalCustomer = customerRepository.findById(id);
-        if (optionalCustomer.isEmpty())
+        try{
+            customerRepository.findById(id);
+            return new ApiResponse("Customer deleted", true);
+        }catch (Exception e){
             return new ApiResponse("Customer not found", false);
-        customerRepository.deleteById(id);
-        return new ApiResponse("Customer deleted", true);
+        }
     }
 }
